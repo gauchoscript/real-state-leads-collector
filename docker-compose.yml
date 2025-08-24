@@ -1,0 +1,12 @@
+services:
+  web-scraper:
+    build: .
+    volumes:
+      - ./src:/app
+      - ./output:/output
+    # Run with Xvfb for headless display
+    command: >
+      sh -c "
+        python main.py
+      "
+    #restart: unless-stopped
