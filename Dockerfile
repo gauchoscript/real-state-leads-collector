@@ -14,8 +14,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 # Create a non-root user for security
-RUN useradd -m -u 1000 scraper && \
-    chown -R scraper:scraper /app
+RUN useradd -m -u 1000 collector && \
+    chown -R collector:collector /app
 
 # Switch to non-root user
-USER scraper
+USER collector

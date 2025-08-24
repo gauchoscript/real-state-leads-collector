@@ -1,5 +1,5 @@
 services:
-  web-scraper:
+  collector:
     build: .
     volumes:
       - ./src:/app
@@ -8,4 +8,3 @@ services:
       sh -c "
         python main.py
       "
-    #restart: unless-stopped
