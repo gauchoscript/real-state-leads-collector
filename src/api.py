@@ -65,7 +65,7 @@ class ClientAPI:
     total_pages = response['searchFilter']['totalPages'];
     sys.stdout.write(f"Total pages: {total_pages}, \n")
     sys.stdout.flush()
-    if page < min(total_pages, 1):
+    if page < min(total_pages, 300):
         time.sleep(random.uniform(0.1, 1))
         self.get_listings(page + 1, page_size)
     else:
