@@ -20,5 +20,6 @@ sys.stdout.write(f"Total leads found: {len(leads)}\n")
 sys.stdout.write(f"Total time taken: {total_end - total_start:.2f} seconds\n")
 sys.stdout.flush()
 
-persistence = Persistence()
-persistence.save_to_xlsx(leads)
+if (len(leads) > 0):
+  persistence = Persistence()
+  persistence.save_to_xlsx(leads)
