@@ -9,6 +9,7 @@ PARENT_DIR = BASE_DIR.parent
 class Persistence:
   def save_to_xlsx(self, leads):
     folder_path = PARENT_DIR / 'output'
+    folder_path.mkdir(exist_ok=True)
     timestamp = time.strftime("%Y%m%d_%H%M%S")
     filename = folder_path / f"relevant_listings_{timestamp}.xlsx"
 
