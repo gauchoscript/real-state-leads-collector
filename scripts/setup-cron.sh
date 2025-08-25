@@ -12,7 +12,7 @@ echo "Setting up cron job for leads collector..."
 echo "Project directory: $PROJECT_DIR"
 echo "Cron job: $CRON_JOB"
 
-if !crontab -l 2>/dev/null | grep -q "docker compose run --rm collector"; then
+if ! crontab -l 2>/dev/null | grep -q "docker compose run --rm collector"; then
     (crontab -l 2>/dev/null; echo "$CRON_JOB") | crontab -
     echo "Cron job added successfully"
 else
