@@ -57,6 +57,7 @@ class RealStateService:
           sys.stdout.flush()
           start = time.time()
           time.sleep(random.uniform(0.1, 1))
+          # make this api calls persist every 20 pages or so that way they're not completly lost if some error happens
           self.recent_contacted_listings.append(self.get_listing_details(listing_id))
           end = time.time()
           sys.stdout.write(f" Done in {end - start:.2f} seconds.\n")
@@ -67,7 +68,7 @@ class RealStateService:
     sys.stdout.flush()
     if page < min(total_pages, 300):
         time.sleep(random.uniform(0.1, 1))
-        self.get_listings(page + 1, page_size)
+        return self.get_listings(page + 1, page_size)
     else:
       return self.recent_contacted_listings
 
