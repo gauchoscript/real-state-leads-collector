@@ -10,7 +10,7 @@ from models import Lead
 
 load_dotenv()
 
-class ClientAPI:
+class RealStateService:
   token = ''
   offices = os.getenv('OFFICE_IDS').split(',')
 
