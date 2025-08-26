@@ -13,6 +13,7 @@ load_dotenv()
 class RealStateService:
   token = ''
   offices = os.getenv('OFFICE_IDS').split(',')
+  recent_contacted_listings = []
 
   def __init__(self, username=os.getenv('USERNAME'), password=os.getenv('PASSWORD')):
     self.token = self.login(username, password)
@@ -28,7 +29,6 @@ class RealStateService:
     return response.json()['id_token']
   
   def get_listings(self, page=1, page_size=10, offices=[]):
-    recent_contacted_listings = []
     sys.stdout.write(f"Fetching page {page}...\n")
     sys.stdout.flush()
     params = {
@@ -53,11 +53,11 @@ class RealStateService:
       for item in response['data']:
         if item['countContacts'] > 0:
           listing_id = item['id']
-          time.sleep(random.uniform(0.1, 1))
           sys.stdout.write(f"Fetching details for listing {listing_id}...\n")
           sys.stdout.flush()
           start = time.time()
-          recent_contacted_listings.append(self.get_listing_details(listing_id))
+          time.sleep(random.uniform(0.1, 1))
+          self.recent_contacted_listings.append(self.get_listing_details(listing_id))
           end = time.time()
           sys.stdout.write(f" Done in {end - start:.2f} seconds.\n")
           sys.stdout.flush()
@@ -69,7 +69,7 @@ class RealStateService:
         time.sleep(random.uniform(0.1, 1))
         self.get_listings(page + 1, page_size)
     else:
-      return recent_contacted_listings
+      return self.recent_contacted_listings
 
   def get_listing_details(self, listing_id):
     url = f"{os.getenv('LISTING_DETAILS_URL')}/{listing_id}"
