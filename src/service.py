@@ -62,8 +62,8 @@ class RealStateService:
           end = time.time()
           sys.stdout.write(f" Done in {end - start:.2f} seconds.\n")
           sys.stdout.flush()
-  
-    total_pages = response['searchFilter']['totalPages'];
+
+    total_pages = response['searchFilter']['totalPages']
     sys.stdout.write(f"Total pages: {total_pages}, \n")
     sys.stdout.flush()
     if page < min(total_pages, 300):
@@ -88,10 +88,12 @@ class RealStateService:
     three_days_ago = now - timedelta(days=3)
 
     for listing in recent_contacted_listings:
+      last_question_hash = None
       for question in listing['question']['question']:
         question_date = tz.localize(datetime.strptime(question['received'], "%Y-%m-%d %H:%M:%S"))
+        question_hash = f"{question['from'].get('email', '')}_{question['from'].get('phone', {}).get('number')}"
         
-        if three_days_ago <= question_date:
+        if three_days_ago <= question_date and question_hash != last_question_hash:
           listing_rows.append(Lead(
             listing['mlsid'], 
             question['portal'], 
@@ -102,4 +104,5 @@ class RealStateService:
             question['from']['phone']['number'],
             question['text'].replace('\n', ' ')
           ))
+          last_question_hash = question_hash
     return listing_rows
