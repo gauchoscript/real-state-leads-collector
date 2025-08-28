@@ -16,6 +16,6 @@ class Persistence:
     data = [asdict(lead) for lead in leads]
 
     dataframe = pandas.DataFrame(data)
-    dataframe.columns = ['MLS ID', 'Portal', 'Recibido', 'Nombre', 'Apellido', 'Email', 'Telefono', 'Mensaje']
+    dataframe.columns = ['MLS ID', 'Portal', 'Recibido', 'Zona', 'Nombre', 'Apellido', 'Email', 'Telefono', 'Mensaje']
 
     dataframe.to_excel(filename, index=False)

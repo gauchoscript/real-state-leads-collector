@@ -51,7 +51,7 @@ class RealStateService:
 
     if 'data' in response:
       for item in response['data']:
-        if item['countContacts'] > 0:
+        if item['countContacts'] > 0 and item['status'] == 'active':
           listing_id = item['id']
           sys.stdout.write(f"Fetching details for listing {listing_id}...\n")
           sys.stdout.flush()
@@ -88,6 +88,12 @@ class RealStateService:
     three_days_ago = now - timedelta(days=3)
 
     for listing in recent_contacted_listings:
+      zone = ''
+      for key in ['neighborhood', 'city', 'subregion', 'region']:
+        zone = listing['address'].get(key)
+        if zone:
+          break
+      
       last_question_hash = None
       for question in listing['question']['question']:
         question_date = tz.localize(datetime.strptime(question['received'], "%Y-%m-%d %H:%M:%S"))
@@ -97,7 +103,8 @@ class RealStateService:
           listing_rows.append(Lead(
             listing['mlsid'], 
             question['portal'], 
-            question['received'], 
+            question['received'],
+            zone, 
             question['from']['first_name'],
             question['from']['last_name'],
             question['from']['email'],
