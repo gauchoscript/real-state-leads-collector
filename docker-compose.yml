@@ -5,6 +5,12 @@ services:
       - ./src:/app
       - ./output:/output
     command: >
-      sh -c "
-        python main.py
-      "
+      sh -c "python main.py"
+  
+  mailer:
+    build: .
+    volumes:
+      - ./src:/app
+      - ./output:/output
+    command: >
+      sh -c "python mailer.py"
