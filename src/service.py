@@ -5,10 +5,7 @@ import random
 import pytz
 import os
 from datetime import datetime, timedelta
-from dotenv import load_dotenv
 from models import Lead
-
-load_dotenv()
 
 class RealStateService:
   token = ''
