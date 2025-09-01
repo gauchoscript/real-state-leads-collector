@@ -1,12 +1,12 @@
+from dotenv import load_dotenv
+load_dotenv()
+
 import time
 import sys
 from service import RealStateService
 from persistence import Persistence
-from dotenv import load_dotenv
 
 def main():
-  load_dotenv()
-  
   real_state_service = RealStateService()
 
   total_start = time.time()

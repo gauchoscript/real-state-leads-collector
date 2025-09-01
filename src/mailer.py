@@ -1,3 +1,6 @@
+from dotenv import load_dotenv
+load_dotenv()
+
 import smtplib
 import os
 import sys
@@ -6,7 +9,6 @@ from email.mime.text import MIMEText
 from email.mime.base import MIMEBase
 from email import encoders
 from lead_files import LeadsFilesFinder
-from dotenv import load_dotenv
 
 class EmailSender:
   # Email settings
@@ -61,8 +63,6 @@ class EmailSender:
         sys.stdout.write(f"Error: {e}")
 
 def main():
-  load_dotenv()
-  
   email_sender = EmailSender(
       smtp_server="smtp.gmail.com",
       smtp_port=587,
