@@ -1,7 +1,7 @@
 import time
 import pandas
 from dataclasses import asdict
-from constants import BASE_DIR
+from src.constants import BASE_DIR
 
 class Persistence:
   def save_to_xlsx(self, leads):

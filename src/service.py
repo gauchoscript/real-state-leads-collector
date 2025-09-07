@@ -5,7 +5,7 @@ import random
 import pytz
 import os
 from datetime import datetime, timedelta
-from models import Lead
+from src.models import Lead
 
 class RealStateService:
   token = ''
