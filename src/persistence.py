@@ -4,11 +4,13 @@ from dataclasses import asdict
 from src.constants import BASE_DIR
 
 class Persistence:
+  def __init__(self, folder_path=BASE_DIR / 'output'):
+    self.folder_path = folder_path
+    self.folder_path.mkdir(exist_ok=True)
+
   def save_to_xlsx(self, leads):
-    folder_path = BASE_DIR / 'output'
-    folder_path.mkdir(exist_ok=True)
     timestamp = time.strftime("%Y%m%d_%H%M%S")
-    filename = folder_path / f"relevant_listings_{timestamp}.xlsx"
+    filename = self.folder_path / f"relevant_listings_{timestamp}.xlsx"
 
     data = [asdict(lead) for lead in leads]
 
@@ -16,3 +18,4 @@ class Persistence:
     dataframe.columns = ['MLS ID', 'Portal', 'Recibido', 'Zona', 'Nombre', 'Apellido', 'Email', 'Telefono', 'Mensaje']
 
     dataframe.to_excel(filename, index=False)
+    return filename
