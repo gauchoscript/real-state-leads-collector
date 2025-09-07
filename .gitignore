@@ -2,3 +2,5 @@ __pycache__/
 output/
 .env
 .devcontainer
+.vscode/
+.pytest_cache/
