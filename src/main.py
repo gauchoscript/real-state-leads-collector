@@ -3,8 +3,8 @@ load_dotenv()
 
 import time
 import sys
-from service import RealStateService
-from persistence import Persistence
+from src.service import RealStateService
+from src.persistence import Persistence
 
 def main():
   real_state_service = RealStateService()

@@ -1,7 +1,7 @@
 import glob
 import os
 from datetime import datetime
-from constants import BASE_DIR
+from src.constants import BASE_DIR
 
 class LeadsFilesFinder:
   @staticmethod
