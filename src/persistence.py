@@ -8,9 +8,12 @@ class Persistence:
     self.folder_path = folder_path
     self.folder_path.mkdir(exist_ok=True)
 
-  def save_to_xlsx(self, leads):
+  def _get_filename(self):
     timestamp = time.strftime("%Y%m%d_%H%M%S")
-    filename = self.folder_path / f"relevant_listings_{timestamp}.xlsx"
+    return self.folder_path / f"relevant_listings_{timestamp}.xlsx"
+
+  def save_to_xlsx(self, leads):
+    filename = self._get_filename()
 
     data = [asdict(lead) for lead in leads]
 
