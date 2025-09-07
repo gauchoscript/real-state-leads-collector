@@ -34,7 +34,8 @@ class EmailSender:
     body = 'Please find the leads report attached.'
     msg.attach(MIMEText(body, 'plain'))
     
-    latest_leads_file = LeadsFilesFinder.get_latest_leads_file() 
+    leads_finder = LeadsFilesFinder()
+    latest_leads_file = leads_finder.get_latest_leads_file() 
 
     if not latest_leads_file:
         sys.stdout.write("No leads file found to attach.")
