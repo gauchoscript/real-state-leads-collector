@@ -11,19 +11,18 @@ from email import encoders
 from src.lead_files import LeadsFilesFinder
 
 class EmailSender:
-  # Email settings
-  smtp_server = 'smtp.gmail.com'
-  smtp_port = 587
-  sender_email = ''
-  sender_password = ''
-
-  def __init__(self, smtp_server, smtp_port, sender_email, sender_password):
+  def __init__(self, 
+    smtp_server="smtp.gmail.com",
+    smtp_port=587,
+    sender_email=os.getenv('SENDER_EMAIL'),
+    sender_password=os.getenv('SENDER_PASSWORD')
+  ):
     self.smtp_server = smtp_server
     self.smtp_port = smtp_port
     self.sender_email = sender_email
     self.sender_password = sender_password
     
-  def send_email(self, recipient_email=''):
+  def send_email(self, recipient_email=os.getenv('RECIPIENT_EMAIL')):
     # Create email
     msg = MIMEMultipart()
     msg['From'] = self.sender_email
@@ -60,17 +59,14 @@ class EmailSender:
         server.sendmail(self.sender_email, recipient_email, msg.as_string())
         server.quit()
         sys.stdout.write("Email sent successfully!")
+        return True
     except Exception as e:
         sys.stdout.write(f"Error: {e}")
+        return False
 
 def main():
-  email_sender = EmailSender(
-      smtp_server="smtp.gmail.com",
-      smtp_port=587,
-      sender_email=os.getenv('SENDER_EMAIL'),
-      sender_password=os.getenv('SENDER_PASSWORD')
-  )
-  email_sender.send_email(recipient_email=os.getenv('RECIPIENT_EMAIL'))
+  email_sender = EmailSender()
+  email_sender.send_email()
 
 if __name__ == "__main__":
     main()
