@@ -107,7 +107,8 @@ class MockGetListingDetailsResponse:
 def mock_login():
   return lambda *args, **kwargs: MockLoginResponse()
 
-def test_get_contacted_active_sale_listings(monkeypatch, mock_login):
+@pytest.fixture
+def mock_envs_and_requests(monkeypatch, mock_login):
   #Arrange
   mock_listing_url = "https://realstate.com/api/listings"
   mock_listing_details_url = "https://realstate.com/api/listing-details"
@@ -123,35 +124,30 @@ def test_get_contacted_active_sale_listings(monkeypatch, mock_login):
 
   monkeypatch.setattr("requests.post", mock_login)
   monkeypatch.setattr("requests.get", mock_get)
-  monkeypatch.setattr("time.sleep", lambda x: None)  # To speed up tests by skipping actual sleep
+  monkeypatch.setattr("time.sleep", lambda x: None)
 
+def test_get_contacted_active_sale_listings(mock_envs_and_requests):
   sut = RealStateService()
-
-  #Act  
+  
   recent_contacted_listings = sut.get_listings()
 
-  #Assert
   assert len(recent_contacted_listings) == 2
   assert recent_contacted_listings[0]['id'] == 1
   assert recent_contacted_listings[1]['id'] == 4
 
-def test_get_dedupicated_leads_from_recent_contacted_listings(monkeypatch, mock_login):
-  monkeypatch.setattr("requests.post", mock_login)
+def test_get_dedupicated_leads_from_recent_contacted_listings(mock_envs_and_requests):
   sut = RealStateService()
 
-  leads = sut.get_leads(MockGetListingDetailsResponse.data)
+  leads = sut.get_leads()
 
   assert len(leads) == 3
   assert leads[0].email == 'jhon@doe.com'
   assert leads[1].email == 'jane@smith.com'
   assert leads[2].email == 'alice@jhonson'
 
-def test_leads_saved_correctly_in_xlsx_file(tmp_path, monkeypatch, mock_login):
-  monkeypatch.setattr("requests.post", mock_login)
+def test_leads_saved_correctly_in_xlsx_file(mock_envs_and_requests, tmp_path):
   real_state_service = RealStateService()
-
-  leads = real_state_service.get_leads(MockGetListingDetailsResponse.data)
-
+  leads = real_state_service.get_leads()
   sut = Persistence(tmp_path)
 
   file_path = sut.save_to_xlsx(leads)
