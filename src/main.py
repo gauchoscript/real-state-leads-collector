@@ -13,11 +13,7 @@ def main():
   sys.stdout.write("Starting to fetch listings...\n")
   sys.stdout.flush()
 
-  recent_contacted_listings = real_state_service.get_listings()
-  leads = []
-
-  if (len(recent_contacted_listings) > 0):
-    leads = real_state_service.get_leads(recent_contacted_listings)
+  leads = real_state_service.get_leads()
 
   total_end = time.time()
   sys.stdout.write(f"Total leads found: {len(leads)}\n")

@@ -78,7 +78,8 @@ class RealStateService:
     response = requests.get(url, headers=headers)
     return response.json()
 
-  def get_leads(self, recent_contacted_listings):
+  def get_leads(self,):
+    recent_contacted_listings = self.get_listings()
     listing_rows = []
     tz = pytz.timezone("America/Argentina/Buenos_Aires")
     now = datetime.now(tz)
