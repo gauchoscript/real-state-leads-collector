@@ -1,4 +1,6 @@
 import pytest
+import pytz
+from datetime import datetime, timedelta
 from src.service import RealStateService
 from src.persistence import Persistence
 
@@ -21,6 +23,8 @@ class MockGetListingResponse:
     }
 
 class MockGetListingDetailsResponse:
+  _tz = pytz.timezone("America/Argentina/Buenos_Aires")
+  _now = datetime.now(_tz)
   data = [
     {
       'id': 1, 
@@ -31,13 +35,13 @@ class MockGetListingDetailsResponse:
           { #old question outside 3 days window
             'portal': 'Real State Portal 1',
             'from': {
-              'first_name': 'John',
+              'first_name': 'Johny',
               'last_name': 'Doe',
-              'email': 'jhon@doe.com', 
+              'email': 'jhony@doe.com', 
               'phone': {'number': '123456789'}
             },
             'text': 'I am interested in this property.',
-            'received': '2025-09-02 10:00:00'
+            'received': (_now - timedelta(days=3)).strftime("%Y-%m-%d %H:%M:%S")
           },
           {
             'portal': 'Real State Portal 1',
@@ -48,7 +52,7 @@ class MockGetListingDetailsResponse:
               'phone': {'number': '123456789'}
             },
             'text': 'I am interested in this property.',
-            'received': '2025-09-06 10:00:00'
+            'received': _now.strftime("%Y-%m-%d %H:%M:%S")
           },
           {
             'portal': 'Real State Portal 2',
@@ -59,7 +63,7 @@ class MockGetListingDetailsResponse:
               'phone': {'number': '987654321'}
             },
             'text': 'Please provide more details.',
-            'received': '2025-09-06 15:30:00' 
+            'received': _now.strftime("%Y-%m-%d %H:%M:%S") 
           }
         ]
       }
@@ -79,7 +83,7 @@ class MockGetListingDetailsResponse:
               'phone': {'number': '555666777'}
             },
             'text': 'Is this property still available?',
-            'received': '2025-09-06 09:15:00'
+            'received': _now.strftime("%Y-%m-%d %H:%M:%S")
           },
           { #duplicated question within some minutes of difference to test lead deduplication functionallity
             'portal': 'Real State Portal 1',
@@ -90,7 +94,7 @@ class MockGetListingDetailsResponse:
               'phone': {'number': '555666777'}
             },
             'text': 'Is this property still available?',
-            'received': '2025-09-06 09:20:00'
+            'received': _now.strftime("%Y-%m-%d %H:%M:%S")
           }
         ]
       }
