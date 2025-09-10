@@ -8,12 +8,11 @@ from datetime import datetime, timedelta
 from src.models import Lead
 
 class RealStateService:
-  token = ''
   offices = os.getenv('OFFICE_IDS').split(',')
-  recent_contacted_listings = []
 
   def __init__(self, username=os.getenv('USERNAME'), password=os.getenv('PASSWORD')):
     self.token = self.login(username, password)
+    self.recent_contacted_listings = []
 
   def login(self, username, password):
     payload = {
