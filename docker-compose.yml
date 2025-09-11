@@ -5,7 +5,7 @@ services:
       - .:/app
       - ./output:/output
     command: >
-      sh -c "python -m src.main"
+      sh -c "python -m src.collector"
   
   mailer:
     build: .
