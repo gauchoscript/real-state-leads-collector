@@ -1,8 +1,8 @@
 import pytest
 import pytz
 from datetime import datetime, timedelta
-from src.service import RealStateService
-from src.persistor import Persistor
+from src.services.listings import Listings
+from src.services.persistor import Persistor
 
 class MockLoginResponse:
   @staticmethod
@@ -131,7 +131,7 @@ def mock_envs_and_requests(monkeypatch, mock_login):
   monkeypatch.setattr("time.sleep", lambda x: None)
 
 def test_get_contacted_active_sale_listings(mock_envs_and_requests):
-  sut = RealStateService()
+  sut = Listings()
   
   recent_contacted_listings = sut.get_listings()
 
@@ -140,7 +140,7 @@ def test_get_contacted_active_sale_listings(mock_envs_and_requests):
   assert recent_contacted_listings[1]['id'] == 4
 
 def test_get_dedupicated_leads_from_recent_contacted_listings(mock_envs_and_requests):
-  sut = RealStateService()
+  sut = Listings()
 
   leads = sut.get_leads()
 
@@ -150,7 +150,7 @@ def test_get_dedupicated_leads_from_recent_contacted_listings(mock_envs_and_requ
   assert leads[2].email == 'alice@jhonson'
 
 def test_leads_saved_correctly_in_xlsx_file(mock_envs_and_requests, tmp_path):
-  real_state_service = RealStateService()
+  real_state_service = Listings()
   leads = real_state_service.get_leads()
   sut = Persistor(tmp_path)
 

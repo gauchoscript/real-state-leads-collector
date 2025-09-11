@@ -8,7 +8,7 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.mime.base import MIMEBase
 from email import encoders
-from src.lead_files import LeadsFilesFinder
+from src.services.lead_files import LeadsFilesFinder
 
 class EmailSender:
   def __init__(self, 

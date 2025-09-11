@@ -3,11 +3,11 @@ load_dotenv()
 
 import time
 import sys
-from src.service import RealStateService
-from src.persistor import Persistor
+from src.services.listings import Listings
+from src.services.persistor import Persistor
 
 def main():
-  real_state_service = RealStateService()
+  real_state_service = Listings()
 
   total_start = time.time()
   sys.stdout.write("Starting to fetch listings...\n")

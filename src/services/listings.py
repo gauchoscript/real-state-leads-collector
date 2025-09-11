@@ -7,7 +7,7 @@ import os
 from datetime import datetime, timedelta
 from src.models import Lead
 
-class RealStateService:
+class Listings:
   offices = os.getenv('OFFICE_IDS').split(',')
 
   def __init__(self, username=os.getenv('USERNAME'), password=os.getenv('PASSWORD')):
