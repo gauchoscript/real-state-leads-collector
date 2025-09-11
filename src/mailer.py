@@ -8,7 +8,7 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.mime.base import MIMEBase
 from email import encoders
-from src.services.lead_files import LeadsFilesFinder
+from src.services.persistor import Persistor
 
 class EmailSender:
   def __init__(self, 
@@ -33,8 +33,8 @@ class EmailSender:
     body = 'Please find the leads report attached.'
     msg.attach(MIMEText(body, 'plain'))
     
-    leads_finder = LeadsFilesFinder()
-    latest_leads_file = leads_finder.get_latest_leads_file() 
+    persistor = Persistor()
+    latest_leads_file = persistor.get_latest_leads_file() 
 
     if not latest_leads_file:
         sys.stdout.write("No leads file found to attach.")

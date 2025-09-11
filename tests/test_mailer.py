@@ -1,4 +1,4 @@
-from src.services.lead_files import LeadsFilesFinder
+from src.services.persistor import Persistor
 from src.mailer import EmailSender
 
 class FakeSMTP:
@@ -26,8 +26,8 @@ def test_email_sents_successfully_when_leads_file_exists(monkeypatch, tmp_path):
   tmp_file = tmp_path / tmp_filename
   tmp_file.touch()
   
-  tmp_list_finder = LeadsFilesFinder(tmp_path)
-  monkeypatch.setattr("src.services.lead_files.LeadsFilesFinder.get_latest_leads_file", tmp_list_finder.get_latest_leads_file)
+  tmp_persistor = Persistor(tmp_path)
+  monkeypatch.setattr("src.services.persistor.Persistor.get_latest_leads_file", tmp_persistor.get_latest_leads_file)
 
   test_sender_email = 'sender_email@test.com'
   test_recipient_email = 'recipient_email@test.com'
