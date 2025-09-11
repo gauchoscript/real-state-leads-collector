@@ -3,7 +3,7 @@ import pandas
 from dataclasses import asdict
 from src.constants import BASE_DIR
 
-class Persistence:
+class Persistor:
   def __init__(self, folder_path=BASE_DIR / 'output'):
     self.folder_path = folder_path
     self.folder_path.mkdir(exist_ok=True)

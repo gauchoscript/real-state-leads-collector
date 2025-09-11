@@ -2,7 +2,7 @@ import pytest
 import pytz
 from datetime import datetime, timedelta
 from src.service import RealStateService
-from src.persistence import Persistence
+from src.persistor import Persistor
 
 class MockLoginResponse:
   @staticmethod
@@ -152,7 +152,7 @@ def test_get_dedupicated_leads_from_recent_contacted_listings(mock_envs_and_requ
 def test_leads_saved_correctly_in_xlsx_file(mock_envs_and_requests, tmp_path):
   real_state_service = RealStateService()
   leads = real_state_service.get_leads()
-  sut = Persistence(tmp_path)
+  sut = Persistor(tmp_path)
 
   file_path = sut.save_to_xlsx(leads)
 

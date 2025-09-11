@@ -4,7 +4,7 @@ load_dotenv()
 import time
 import sys
 from src.service import RealStateService
-from src.persistence import Persistence
+from src.persistor import Persistor
 
 def main():
   real_state_service = RealStateService()
@@ -21,7 +21,7 @@ def main():
   sys.stdout.flush()
 
   if (len(leads) > 0):
-    persistence = Persistence()
+    persistence = Persistor()
     persistence.save_to_xlsx(leads)
 
 if __name__ == "__main__":
