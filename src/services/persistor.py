@@ -5,7 +5,8 @@ import pandas
 from dataclasses import asdict
 from pathlib import Path
 
-SRC_DIR = Path(__file__).resolve().parent
+SERVICES_DIR = Path(__file__).resolve().parent
+SRC_DIR = SERVICES_DIR.parent
 BASE_DIR = SRC_DIR.parent
 
 class Persistor:
