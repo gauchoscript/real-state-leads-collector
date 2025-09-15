@@ -1,4 +1,4 @@
-.PHONY: help setup build test install-cron remove-cron status logs clean
+.PHONY: help setup build test install-cron remove-cron status logs clean tests
 
 help:
 	@echo "Leads collector tool management"
@@ -12,6 +12,7 @@ help:
 	@echo "  logs        - Show recent cron logs"
 	@echo "  dev-logs    - Follow cron logs in real-time"
 	@echo "  clean       - Remove docker images and containers"
+	@echo "  tests       - Run tests"
 
 setup: build install-cron
 	@echo ""
@@ -56,3 +57,5 @@ clean:
 	docker compose down --rmi all --volumes --remove-orphans 2>/dev/null || true
 	@echo "Cleanup complete!"
 
+tests:
+	python -m pytest -vv
