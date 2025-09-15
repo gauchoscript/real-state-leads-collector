@@ -59,7 +59,10 @@ class Listings:
           sys.stdout.write(f" Done in {end - start:.2f} seconds.\n")
           sys.stdout.flush()
 
-    total_pages = response['searchFilter']['totalPages']
+    total_pages = response.get('searchFilter', {}).get('totalPages', 999)
+
+    if total_pages == 999:
+      sys.stdout.write(f"Total pages not found in response: {response}\n")
     sys.stdout.write(f"Total pages: {total_pages}, \n")
     sys.stdout.flush()
     if page < min(total_pages, 300):
