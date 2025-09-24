@@ -43,7 +43,11 @@ class Listings:
     response = requests.get(os.getenv('LISTINGS_URL'), params=params, headers=headers)
     end = time.time()
     sys.stdout.write(f" Done in {end - start:.2f} seconds.\n")
-    response = response.json()
+    if response is not None:
+      response = response.json()
+    else:
+      sys.stdout.write(f"Response not found?: {response}\n")
+      return self.get_listings(page + 1, page_size)
 
     if 'data' in response:
       for item in response['data']:
@@ -59,10 +63,8 @@ class Listings:
           sys.stdout.write(f" Done in {end - start:.2f} seconds.\n")
           sys.stdout.flush()
 
-    total_pages = response.get('searchFilter', {}).get('totalPages', 999)
+    total_pages = (response or {}).get('searchFilter', {}).get('totalPages', 300)
 
-    if total_pages == 999:
-      sys.stdout.write(f"Total pages not found in response: {response}\n")
     sys.stdout.write(f"Total pages: {total_pages}, \n")
     sys.stdout.flush()
     if page < min(total_pages, 300):
