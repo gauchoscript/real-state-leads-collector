@@ -1,3 +1,4 @@
+import json
 import requests
 import time
 import sys
@@ -24,6 +25,56 @@ class Listings:
     response = requests.post(os.getenv('LOGIN_URL') , json=payload)      
     return response.json()['id_token']
   
+  def make_api_call(self, params, headers, page, page_size):
+    try:
+      start = time.time()
+      response = requests.get(os.getenv('LISTINGS_URL'), params=params, headers=headers, timeout=30)
+      end = time.time()
+      sys.stdout.write(f" Done in {end - start:.2f} seconds.\n")
+      
+      # Check HTTP status
+      if response.status_code != 200:
+          sys.stdout.write(f"HTTP Error {response.status_code}: {response.text[:200]}\n")
+          return self.get_listings(page + 1, page_size)
+      
+      # Check if response has content
+      if not response.content.strip():
+          sys.stdout.write("Empty response body\n")
+          return self.get_listings(page + 1, page_size)
+      
+      # Check content type
+      # Normalize all header keys to lowercase for robust Content-Type detection
+      headers_lower = {k.lower(): v for k, v in response.headers.items()}
+      content_type = headers_lower.get('content-type', '')
+      if 'application/json' not in content_type.lower():
+          sys.stdout.write(f"Non-JSON response. Content-Type: {content_type}\n")
+          sys.stdout.write(f"Response: {response.text[:200]}\n")
+          return self.get_listings(page + 1, page_size)
+      
+      # Safe JSON parsing
+      try:
+          response_data = response.json()
+          return response_data
+      except json.JSONDecodeError as e:
+          sys.stdout.write(f"JSON decode error: {e}\n")
+          sys.stdout.write(f"Response content: {response.text[:200]}\n")
+          return self.get_listings(page + 1, page_size)
+          
+    except requests.exceptions.Timeout:
+        end = time.time()
+        sys.stdout.write(f"Request timed out after {end - start:.2f} seconds\n")
+        return self.get_listings(page + 1, page_size)
+        
+    except requests.exceptions.ConnectionError as e:
+        end = time.time()
+        sys.stdout.write(f"Connection error: {e}\n")
+        return self.get_listings(page + 1, page_size)
+        
+    except Exception as e:
+        end = time.time()
+        sys.stdout.write(f"Unexpected error: {e}\n")
+        return self.get_listings(page + 1, page_size)
+    
   def get_listings(self, page=1, page_size=10, offices=[]):
     sys.stdout.write(f"Fetching page {page}...\n")
     sys.stdout.flush()
@@ -39,15 +90,8 @@ class Listings:
     headers = {
         "Authorization": f"Bearer {self.token}"
     }
-    start = time.time()
-    response = requests.get(os.getenv('LISTINGS_URL'), params=params, headers=headers)
-    end = time.time()
-    sys.stdout.write(f" Done in {end - start:.2f} seconds.\n")
-    if response is not None:
-      response = response.json()
-    else:
-      sys.stdout.write(f"Response not found?: {response}\n")
-      return self.get_listings(page + 1, page_size)
+    
+    response = self.make_api_call(params, headers, page, page_size)
 
     if 'data' in response:
       for item in response['data']:
