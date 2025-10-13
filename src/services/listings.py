@@ -35,12 +35,12 @@ class Listings:
       # Check HTTP status
       if response.status_code != 200:
           sys.stdout.write(f"HTTP Error {response.status_code}: {response.text[:200]}\n")
-          return self.get_listings(page + 1, page_size)
+          return {}
       
       # Check if response has content
       if not response.content.strip():
           sys.stdout.write("Empty response body\n")
-          return self.get_listings(page + 1, page_size)
+          return {}
       
       # Check content type
       # Normalize all header keys to lowercase for robust Content-Type detection
@@ -49,7 +49,7 @@ class Listings:
       if 'application/json' not in content_type.lower():
           sys.stdout.write(f"Non-JSON response. Content-Type: {content_type}\n")
           sys.stdout.write(f"Response: {response.text[:200]}\n")
-          return self.get_listings(page + 1, page_size)
+          return {}
       
       # Safe JSON parsing
       try:
@@ -58,22 +58,22 @@ class Listings:
       except json.JSONDecodeError as e:
           sys.stdout.write(f"JSON decode error: {e}\n")
           sys.stdout.write(f"Response content: {response.text[:200]}\n")
-          return self.get_listings(page + 1, page_size)
+          return {}
           
     except requests.exceptions.Timeout:
         end = time.time()
         sys.stdout.write(f"Request timed out after {end - start:.2f} seconds\n")
-        return self.get_listings(page + 1, page_size)
+        return {}
         
     except requests.exceptions.ConnectionError as e:
         end = time.time()
         sys.stdout.write(f"Connection error: {e}\n")
-        return self.get_listings(page + 1, page_size)
+        return {}
         
     except Exception as e:
         end = time.time()
         sys.stdout.write(f"Unexpected error: {e}\n")
-        return self.get_listings(page + 1, page_size)
+        return {}
     
   def get_listings(self, page=1, page_size=10, offices=[]):
     sys.stdout.write(f"Fetching page {page}...\n")

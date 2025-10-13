@@ -1,5 +1,6 @@
 import pytest
 import pytz
+import json
 from datetime import datetime, timedelta
 from src.services.listings import Listings
 from src.services.persistor import Persistor
@@ -10,17 +11,18 @@ class MockLoginResponse:
     return {'id_token': 'mocked_token'}
 
 class MockGetListingResponse:
-  @staticmethod
-  def json():
-    return {
-      'data': [
-        {'id': 1, 'countContacts': 5, 'status': 'active'},
-        {'id': 2, 'countContacts': 0, 'status': 'active'},
-        {'id': 3, 'countContacts': 3, 'status': 'inactive'},
-        {'id': 4, 'countContacts': 2, 'status': 'active'},
-      ],
-      'searchFilter': {'totalPages': 1}
+  def __init__(self, response):
+    self.status_code = response['status_code']
+    self.headers = {'Content-Type': 'application/json'}
+    self._json_data = {
+      'data': response['data'],
+      'searchFilter': {'totalPages': 3}
     }
+    self.content = json.dumps(self._json_data).encode('utf-8')
+    self.text = json.dumps(self._json_data)
+  
+  def json(self):
+    return self._json_data
 
 class MockGetListingDetailsResponse:
   _tz = pytz.timezone("America/Argentina/Buenos_Aires")
@@ -119,16 +121,23 @@ def mock_envs_and_requests(monkeypatch, mock_login):
   monkeypatch.setenv("LISTINGS_URL", mock_listing_url)
   monkeypatch.setenv("LISTING_DETAILS_URL", mock_listing_details_url)
   
+  # share the same instance to keep state between calls
+  responses = [
+    {'status_code': 200, 'data': [{'id': 1, 'countContacts': 5, 'status': 'active'}, {'id': 2, 'countContacts': 0, 'status': 'active'}]},
+    {'status_code': 500, 'data': []},
+    {'status_code': 200, 'data': [{'id': 3, 'countContacts': 3, 'status': 'inactive'}, {'id': 4, 'countContacts': 2, 'status': 'active'}]}
+  ]
+
   def mock_get(url, *args, **kwargs):
     if url == mock_listing_url:
-      return MockGetListingResponse()
+      return MockGetListingResponse(responses.pop(0) if responses else {'status_code': 200, 'data': []})
     
     listing_id = int(url.split('/')[-1])
     return MockGetListingDetailsResponse(listing_id)
 
-  monkeypatch.setattr("requests.post", mock_login)
-  monkeypatch.setattr("requests.get", mock_get)
-  monkeypatch.setattr("time.sleep", lambda x: None)
+  monkeypatch.setattr("src.services.listings.requests.post", mock_login)
+  monkeypatch.setattr("src.services.listings.requests.get", mock_get)
+  monkeypatch.setattr("src.services.listings.time.sleep", lambda x: None)
 
 def test_get_contacted_active_sale_listings(mock_envs_and_requests):
   sut = Listings()
