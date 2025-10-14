@@ -16,11 +16,13 @@ class EmailSender:
         smtp_port=587,
         sender_email=os.getenv("SENDER_EMAIL"),
         sender_password=os.getenv("SENDER_PASSWORD"),
+        persistor=None,
     ):
         self._smtp_server = smtp_server
         self._smtp_port = smtp_port
         self._sender_email = sender_email
         self._sender_password = sender_password
+        self._persistor = persistor or Persistor()
 
     def send(self, recipient_email=os.getenv("RECIPIENT_EMAIL")):
         # Create email
@@ -33,8 +35,7 @@ class EmailSender:
         body = "Please find the leads report attached."
         msg.attach(MIMEText(body, "plain"))
 
-        persistor = Persistor()
-        latest_leads_file = persistor.get_latest_leads_file()
+        latest_leads_file = self._persistor.get_latest_leads_file()
 
         if not latest_leads_file:
             sys.stdout.write("No leads file found to attach.")
