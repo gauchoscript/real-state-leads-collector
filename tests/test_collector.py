@@ -186,7 +186,7 @@ def test_leads_saved_correctly_in_xlsx_file(mock_envs_and_requests, tmp_path):
     leads = real_state_service.get_leads()
     sut = Persistor(tmp_path)
 
-    file_path = sut.save_to_xlsx(leads)
+    file_path = sut.save(leads)
 
     assert file_path.exists()
     assert file_path.stat().st_size > 0

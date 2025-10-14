@@ -19,7 +19,7 @@ class Persistor:
         timestamp = time.strftime("%Y%m%d_%H%M%S")
         return self.folder_path / f"relevant_listings_{timestamp}.xlsx"
 
-    def save_to_xlsx(self, leads):
+    def save(self, leads):
         filename = self._get_filename()
 
         data = [asdict(lead) for lead in leads]

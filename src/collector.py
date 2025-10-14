@@ -23,8 +23,8 @@ def main():
     sys.stdout.flush()
 
     if len(leads) > 0:
-        persistence = Persistor()
-        persistence.save_to_xlsx(leads)
+        persistor = Persistor()
+        persistor.save(leads)
 
 
 if __name__ == "__main__":
