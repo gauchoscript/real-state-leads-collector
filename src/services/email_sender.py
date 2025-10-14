@@ -17,15 +17,15 @@ class EmailSender:
         sender_email=os.getenv("SENDER_EMAIL"),
         sender_password=os.getenv("SENDER_PASSWORD"),
     ):
-        self.smtp_server = smtp_server
-        self.smtp_port = smtp_port
-        self.sender_email = sender_email
-        self.sender_password = sender_password
+        self._smtp_server = smtp_server
+        self._smtp_port = smtp_port
+        self._sender_email = sender_email
+        self._sender_password = sender_password
 
     def send(self, recipient_email=os.getenv("RECIPIENT_EMAIL")):
         # Create email
         msg = MIMEMultipart()
-        msg["From"] = self.sender_email
+        msg["From"] = self._sender_email
         msg["To"] = recipient_email
         msg["Subject"] = "Leads Report"
 
@@ -53,10 +53,10 @@ class EmailSender:
 
         # Send email
         try:
-            server = smtplib.SMTP(self.smtp_server, self.smtp_port)
+            server = smtplib.SMTP(self._smtp_server, self._smtp_port)
             server.starttls()
-            server.login(self.sender_email, self.sender_password)
-            server.sendmail(self.sender_email, recipient_email, msg.as_string())
+            server.login(self._sender_email, self._sender_password)
+            server.sendmail(self._sender_email, recipient_email, msg.as_string())
             server.quit()
             sys.stdout.write("Email sent successfully!")
             return True

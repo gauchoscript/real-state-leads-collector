@@ -13,8 +13,8 @@ class Listings:
     offices = os.getenv("OFFICE_IDS").split(",")
 
     def __init__(self, username=os.getenv("USERNAME"), password=os.getenv("PASSWORD")):
-        self.token = self.login(username, password)
-        self.recent_contacted_listings = []
+        self._token = self.login(username, password)
+        self._recent_contacted_listings = []
 
     def login(self, username, password):
         payload = {"user": {"username": username, "password": password}}
@@ -87,8 +87,8 @@ class Listings:
             "page_size": page_size,
             "byoffice[]": offices,
         }
-        headers = {"Authorization": f"Bearer {self.token}"}
-
+        headers = {"Authorization": f"Bearer {self._token}"}
+        sys.stdout.write(f" Making API call for page {params}... ")
         response = self.make_api_call(params, headers, page, page_size)
 
         if "data" in response:
@@ -100,7 +100,7 @@ class Listings:
                     start = time.time()
                     time.sleep(random.uniform(0.1, 1))
                     # make this api calls persist every 20 pages or so that way they're not completly lost if some error happens
-                    self.recent_contacted_listings.append(
+                    self._recent_contacted_listings.append(
                         self.get_listing_details(listing_id)
                     )
                     end = time.time()
@@ -115,11 +115,11 @@ class Listings:
             time.sleep(random.uniform(0.1, 1))
             return self.get_listings(page + 1, page_size)
         else:
-            return self.recent_contacted_listings
+            return self._recent_contacted_listings
 
     def get_listing_details(self, listing_id):
         url = f"{os.getenv('LISTING_DETAILS_URL')}/{listing_id}"
-        headers = {"Authorization": f"Bearer {self.token}"}
+        headers = {"Authorization": f"Bearer {self._token}"}
 
         response = requests.get(url, headers=headers)
         return response.json()

@@ -12,12 +12,12 @@ BASE_DIR = SRC_DIR.parent
 
 class Persistor:
     def __init__(self, folder_path=BASE_DIR / "output"):
-        self.folder_path = folder_path
-        self.folder_path.mkdir(exist_ok=True)
+        self._folder_path = folder_path
+        self._folder_path.mkdir(exist_ok=True)
 
     def _get_filename(self):
         timestamp = time.strftime("%Y%m%d_%H%M%S")
-        return self.folder_path / f"relevant_listings_{timestamp}.xlsx"
+        return self._folder_path / f"relevant_listings_{timestamp}.xlsx"
 
     def save(self, leads):
         filename = self._get_filename()
@@ -41,7 +41,7 @@ class Persistor:
         return filename
 
     def get_latest_leads_file(self):
-        pattern = os.path.join(self.folder_path, "relevant_listings_*.xlsx")
+        pattern = os.path.join(self._folder_path, "relevant_listings_*.xlsx")
         files = glob.glob(pattern)
 
         if not files:
