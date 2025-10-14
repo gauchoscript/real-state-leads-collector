@@ -22,7 +22,7 @@ class EmailSender:
         self.sender_email = sender_email
         self.sender_password = sender_password
 
-    def send_email(self, recipient_email=os.getenv("RECIPIENT_EMAIL")):
+    def send(self, recipient_email=os.getenv("RECIPIENT_EMAIL")):
         # Create email
         msg = MIMEMultipart()
         msg["From"] = self.sender_email

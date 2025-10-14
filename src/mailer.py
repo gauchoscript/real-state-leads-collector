@@ -7,7 +7,7 @@ from src.services.email_sender import EmailSender
 
 def main():
     email_sender = EmailSender()
-    email_sender.send_email()
+    email_sender.send()
 
 
 if __name__ == "__main__":

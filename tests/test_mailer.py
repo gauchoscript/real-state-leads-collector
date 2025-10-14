@@ -40,7 +40,7 @@ def test_email_sents_successfully_when_leads_file_exists(monkeypatch, tmp_path):
     sut = EmailSender("smtp.test.com", 587, test_sender_email)
 
     # Act
-    sent = sut.send_email(test_recipient_email)
+    sent = sut.send(test_recipient_email)
 
     # Assert
     assert sent == True
