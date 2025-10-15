@@ -16,7 +16,7 @@ class Listings:
     offices = os.getenv("OFFICE_IDS").split(",")
 
     def __init__(self, username=None, password=None):
-        self._token = self._load_token() or self.login(username, password)
+        self._token = self._load_token() or self._login(username, password)
         self._recent_contacted_listings = []
 
     def _load_token(self):
@@ -31,7 +31,7 @@ class Listings:
         with open(TOKEN_FILE, "w") as f:
             json.dump({"token": token}, f)
 
-    def login(self, username=os.getenv("USERNAME"), password=os.getenv("PASSWORD")):
+    def _login(self, username=os.getenv("USERNAME"), password=os.getenv("PASSWORD")):
         sys.stdout.write("Logging in...\n")
         payload = {"user": {"username": username, "password": password}}
         response = requests.post(os.getenv("LOGIN_URL"), json=payload)
@@ -42,7 +42,7 @@ class Listings:
 
         return token
 
-    def make_api_call(self, params, headers, page, page_size):
+    def _make_api_call(self, params, headers, page, page_size):
         try:
             start = time.time()
             response = requests.get(
@@ -54,13 +54,13 @@ class Listings:
             # Check HTTP status
             if response.status_code == 401:
                 sys.stdout.write("Unauthorized. Token may have expired. Re-authenticating...\n")
-                self._token = self.login()
+                self._token = self._login()
                 
                 if not self._token:
                     sys.exit("Re-authentication failed.\n")
                 
                 headers["Authorization"] = f"Bearer {self._token}"
-                return self.make_api_call(params, headers, page, page_size)
+                return self._make_api_call(params, headers, page, page_size)
             
             if response.status_code != 200:
                 sys.stdout.write(
@@ -120,7 +120,7 @@ class Listings:
         }
         headers = {"Authorization": f"Bearer {self._token}"}
 
-        response = self.make_api_call(params, headers, page, page_size)
+        response = self._make_api_call(params, headers, page, page_size)
 
         if "data" in response:
             for item in response["data"]:
@@ -132,7 +132,7 @@ class Listings:
                     time.sleep(random.uniform(0.1, 1))
                     # make this api calls persist every 20 pages or so that way they're not completly lost if some error happens
                     self._recent_contacted_listings.append(
-                        self.get_listing_details(listing_id)
+                        self._get_listing_details(listing_id)
                     )
                     end = time.time()
                     sys.stdout.write(f" Done in {end - start:.2f} seconds.\n")
@@ -148,7 +148,7 @@ class Listings:
         else:
             return self._recent_contacted_listings
 
-    def get_listing_details(self, listing_id):
+    def _get_listing_details(self, listing_id):
         url = f"{os.getenv('LISTING_DETAILS_URL')}/{listing_id}"
         headers = {"Authorization": f"Bearer {self._token}"}
 
