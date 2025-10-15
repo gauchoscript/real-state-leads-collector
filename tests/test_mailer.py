@@ -1,3 +1,4 @@
+from src.models import EmailConfig
 from src.services.persistor import Persistor
 from src.mailer import EmailSender
 
@@ -36,8 +37,11 @@ def test_email_sents_successfully_when_leads_file_exists(monkeypatch, tmp_path):
 
     test_sender_email = "sender_email@test.com"
     test_recipient_email = "recipient_email@test.com"
+    config = EmailConfig(
+        sender_email=test_sender_email, sender_password="test_password"
+    )
 
-    sut = EmailSender("smtp.test.com", 587, test_sender_email)
+    sut = EmailSender(config)
 
     # Act
     sent = sut.send(test_recipient_email)
