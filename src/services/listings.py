@@ -13,10 +13,9 @@ TOKEN_FILE = Path(__file__).resolve().parent / "auth.json"
 
 
 class Listings:
-    offices = os.getenv("OFFICE_IDS").split(",")
-
     def __init__(self, username=None, password=None):
         self._token = self._load_token() or self._login(username, password)
+        self._offices = os.getenv("OFFICE_IDS").split(",")
         self._recent_contacted_listings = []
 
     def _load_token(self):
@@ -36,7 +35,7 @@ class Listings:
         payload = {"user": {"username": username, "password": password}}
         response = requests.post(os.getenv("LOGIN_URL"), json=payload)
         token = response.json().get("id_token")
-        
+
         if token:
             self._save_token(token)
 
@@ -53,15 +52,17 @@ class Listings:
 
             # Check HTTP status
             if response.status_code == 401:
-                sys.stdout.write("Unauthorized. Token may have expired. Re-authenticating...\n")
+                sys.stdout.write(
+                    "Unauthorized. Token may have expired. Re-authenticating...\n"
+                )
                 self._token = self._login()
-                
+
                 if not self._token:
                     sys.exit("Re-authentication failed.\n")
-                
+
                 headers["Authorization"] = f"Bearer {self._token}"
                 return self._make_api_call(params, headers, page, page_size)
-            
+
             if response.status_code != 200:
                 sys.stdout.write(
                     f"HTTP Error {response.status_code}: {response.text[:200]}\n"
@@ -106,7 +107,7 @@ class Listings:
             sys.stdout.write(f"Unexpected error: {e}\n")
             return {}
 
-    def get_listings(self, page=1, page_size=10, offices=[]):
+    def get_listings(self, page=1, page_size=10):
         sys.stdout.write(f"Fetching page {page}...\n")
         sys.stdout.flush()
         params = {
@@ -116,7 +117,7 @@ class Listings:
             "orderby": "-updated_on",
             "page": page,
             "page_size": page_size,
-            "byoffice[]": offices,
+            "byoffice[]": self._offices,
         }
         headers = {"Authorization": f"Bearer {self._token}"}
 
