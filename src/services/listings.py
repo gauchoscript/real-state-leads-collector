@@ -5,21 +5,42 @@ import sys
 import random
 import pytz
 import os
+from pathlib import Path
 from datetime import datetime, timedelta
 from src.models import Lead
+
+TOKEN_FILE = Path(__file__).resolve().parent / "auth.json"
 
 
 class Listings:
     offices = os.getenv("OFFICE_IDS").split(",")
 
-    def __init__(self, username=os.getenv("USERNAME"), password=os.getenv("PASSWORD")):
-        self._token = self.login(username, password)
+    def __init__(self, username=None, password=None):
+        self._token = self._load_token() or self.login(username, password)
         self._recent_contacted_listings = []
 
-    def login(self, username, password):
+    def _load_token(self):
+        try:
+            with open(TOKEN_FILE, "r") as f:
+                data = json.load(f)
+                return data.get("token")
+        except (FileNotFoundError, json.JSONDecodeError):
+            return None
+
+    def _save_token(self, token):
+        with open(TOKEN_FILE, "w") as f:
+            json.dump({"token": token}, f)
+
+    def login(self, username=os.getenv("USERNAME"), password=os.getenv("PASSWORD")):
+        sys.stdout.write("Logging in...\n")
         payload = {"user": {"username": username, "password": password}}
         response = requests.post(os.getenv("LOGIN_URL"), json=payload)
-        return response.json()["id_token"]
+        token = response.json().get("id_token")
+        
+        if token:
+            self._save_token(token)
+
+        return token
 
     def make_api_call(self, params, headers, page, page_size):
         try:
@@ -31,6 +52,16 @@ class Listings:
             sys.stdout.write(f" Done in {end - start:.2f} seconds.\n")
 
             # Check HTTP status
+            if response.status_code == 401:
+                sys.stdout.write("Unauthorized. Token may have expired. Re-authenticating...\n")
+                self._token = self.login()
+                
+                if not self._token:
+                    sys.exit("Re-authentication failed.\n")
+                
+                headers["Authorization"] = f"Bearer {self._token}"
+                return self.make_api_call(params, headers, page, page_size)
+            
             if response.status_code != 200:
                 sys.stdout.write(
                     f"HTTP Error {response.status_code}: {response.text[:200]}\n"
@@ -88,7 +119,7 @@ class Listings:
             "byoffice[]": offices,
         }
         headers = {"Authorization": f"Bearer {self._token}"}
-        sys.stdout.write(f" Making API call for page {params}... ")
+
         response = self.make_api_call(params, headers, page, page_size)
 
         if "data" in response:
