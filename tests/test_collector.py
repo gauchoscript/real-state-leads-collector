@@ -155,7 +155,7 @@ def mock_envs_and_requests(monkeypatch, mock_login):
         listing_id = int(url.split("/")[-1])
         return MockGetListingDetailsResponse(listing_id)
 
-    monkeypatch.setattr("src.services.listings.requests.post", mock_login)
+    monkeypatch.setattr("src.services.auth.requests.post", mock_login)
     monkeypatch.setattr("src.services.listings.requests.get", mock_get)
     monkeypatch.setattr("src.services.listings.time.sleep", lambda x: None)
 

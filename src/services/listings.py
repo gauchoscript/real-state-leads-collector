@@ -5,41 +5,17 @@ import sys
 import random
 import pytz
 import os
-from pathlib import Path
 from datetime import datetime, timedelta
 from src.models import Lead
-
-TOKEN_FILE = Path(__file__).resolve().parent / "auth.json"
+from src.services.auth import Auth
 
 
 class Listings:
-    def __init__(self, username=None, password=None):
-        self._token = self._load_token() or self._login(username, password)
+    def __init__(self, auth=None):
+        self._auth = auth or Auth()
+        self._token = self._auth.get_token()
         self._offices = os.getenv("OFFICE_IDS").split(",")
         self._recent_contacted_listings = []
-
-    def _load_token(self):
-        try:
-            with open(TOKEN_FILE, "r") as f:
-                data = json.load(f)
-                return data.get("token")
-        except (FileNotFoundError, json.JSONDecodeError):
-            return None
-
-    def _save_token(self, token):
-        with open(TOKEN_FILE, "w") as f:
-            json.dump({"token": token}, f)
-
-    def _login(self, username=os.getenv("USERNAME"), password=os.getenv("PASSWORD")):
-        sys.stdout.write("Logging in...\n")
-        payload = {"user": {"username": username, "password": password}}
-        response = requests.post(os.getenv("LOGIN_URL"), json=payload)
-        token = response.json().get("id_token")
-
-        if token:
-            self._save_token(token)
-
-        return token
 
     def _make_api_call(self, params, headers, page, page_size):
         try:
@@ -55,7 +31,7 @@ class Listings:
                 sys.stdout.write(
                     "Unauthorized. Token may have expired. Re-authenticating...\n"
                 )
-                self._token = self._login()
+                self._token = self._auth.login()
 
                 if not self._token:
                     sys.exit("Re-authentication failed.\n")
