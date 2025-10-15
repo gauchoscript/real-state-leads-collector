@@ -6,22 +6,17 @@ from email.mime.base import MIMEBase
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
+from src.models import EmailConfig
 from src.services.persistor import Persistor
 
 
 class EmailSender:
     def __init__(
         self,
-        smtp_server="smtp.gmail.com",
-        smtp_port=587,
-        sender_email=os.getenv("SENDER_EMAIL"),
-        sender_password=os.getenv("SENDER_PASSWORD"),
+        config=EmailConfig,
         persistor=None,
     ):
-        self._smtp_server = smtp_server
-        self._smtp_port = smtp_port
-        self._sender_email = sender_email
-        self._sender_password = sender_password
+        self._config = config
         self._persistor = persistor or Persistor()
 
     def _attach_leads_file(self, message):
@@ -44,7 +39,7 @@ class EmailSender:
 
     def _create_message(self, recipient_email):
         message = MIMEMultipart()
-        message["From"] = self._sender_email
+        message["From"] = self._config.sender_email
         message["To"] = recipient_email
         message["Subject"] = "Leads Report"
 
@@ -59,10 +54,10 @@ class EmailSender:
         message = self._create_message(recipient_email)
 
         try:
-            server = smtplib.SMTP(self._smtp_server, self._smtp_port)
+            server = smtplib.SMTP(self._config.smtp_server, self._config.smtp_port)
             server.starttls()
-            server.login(self._sender_email, self._sender_password)
-            server.sendmail(self._sender_email, recipient_email, message)
+            server.login(self._config.sender_email, self._config.sender_password)
+            server.sendmail(self._config.sender_email, recipient_email, message)
             server.quit()
             sys.stdout.write("Email sent successfully!")
             return True
