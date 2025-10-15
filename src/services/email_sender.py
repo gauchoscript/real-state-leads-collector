@@ -24,40 +24,45 @@ class EmailSender:
         self._sender_password = sender_password
         self._persistor = persistor or Persistor()
 
-    def send(self, recipient_email=os.getenv("RECIPIENT_EMAIL")):
-        # Create email
-        msg = MIMEMultipart()
-        msg["From"] = self._sender_email
-        msg["To"] = recipient_email
-        msg["Subject"] = "Leads Report"
-
-        # Email body
-        body = "Please find the leads report attached."
-        msg.attach(MIMEText(body, "plain"))
-
+    def _attach_leads_file(self, message):
         latest_leads_file = self._persistor.get_latest_leads_file()
-
         if not latest_leads_file:
-            sys.stdout.write("No leads file found to attach.")
-            return False
+            sys.exit("No leads file found to attach.")
 
-        filename = os.path.basename(latest_leads_file)
-
-        # Attach file
         with open(latest_leads_file, "rb") as attachment:
             part = MIMEBase("application", "octet-stream")
             part.set_payload(attachment.read())
 
         encoders.encode_base64(part)
-        part.add_header("Content-Disposition", f'attachment; filename="{filename}"')
-        msg.attach(part)
+        part.add_header(
+            "Content-Disposition",
+            f'attachment; filename="{os.path.basename(latest_leads_file)}"',
+        )
+        message.attach(part)
 
-        # Send email
+        return message
+
+    def _create_message(self, recipient_email):
+        message = MIMEMultipart()
+        message["From"] = self._sender_email
+        message["To"] = recipient_email
+        message["Subject"] = "Leads Report"
+
+        body = "Please find the attached leads report."
+        message.attach(MIMEText(body, "plain"))
+
+        message = self._attach_leads_file(message)
+
+        return message.as_string()
+
+    def send(self, recipient_email=os.getenv("RECIPIENT_EMAIL")):
+        message = self._create_message(recipient_email)
+
         try:
             server = smtplib.SMTP(self._smtp_server, self._smtp_port)
             server.starttls()
             server.login(self._sender_email, self._sender_password)
-            server.sendmail(self._sender_email, recipient_email, msg.as_string())
+            server.sendmail(self._sender_email, recipient_email, message)
             server.quit()
             sys.stdout.write("Email sent successfully!")
             return True
