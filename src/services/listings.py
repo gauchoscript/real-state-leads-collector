@@ -11,6 +11,8 @@ from src.services.auth import Auth
 
 
 class Listings:
+    MAX_PAGES = 300
+
     def __init__(self, auth=None):
         self._auth = auth or Auth()
         self._token = self._auth.get_token()
@@ -115,11 +117,11 @@ class Listings:
                     sys.stdout.write(f" Done in {end - start:.2f} seconds.\n")
                     sys.stdout.flush()
 
-        total_pages = (response or {}).get("searchFilter", {}).get("totalPages", 300)
+        total_pages = (response or {}).get("searchFilter", {}).get("totalPages", Listings.MAX_PAGES)
 
         sys.stdout.write(f"Total pages: {total_pages}, \n")
         sys.stdout.flush()
-        if page < min(total_pages, 300):
+        if page < min(total_pages, Listings.MAX_PAGES):
             time.sleep(random.uniform(0.1, 1))
             return self.get_listings(page + 1, page_size)
         else:
