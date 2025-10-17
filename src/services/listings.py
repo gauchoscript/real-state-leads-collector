@@ -19,7 +19,42 @@ class Listings:
         self._offices = os.getenv("OFFICE_IDS").split(",")
 
     def get_listings(self, page=1, page_size=10):
-        return self._get_listings_recursively(page, page_size, [])
+        accumulated_listings = []
+
+        try:
+            while True:
+                sys.stdout.write(f"Fetching page {page}...\n")
+                sys.stdout.flush()
+
+                response = self._get_page(page, page_size)
+
+                for listing_id in self._get_valid_listings(response):
+                    sys.stdout.write(f"Fetching details for listing {listing_id}...\n")
+                    sys.stdout.flush()
+                    start = time.time()
+                    time.sleep(random.uniform(0.1, 1))
+                    # make this api calls persist every 20 pages or so that way they're not completly lost if some error happens
+                    accumulated_listings.append(self._get_listing_details(listing_id))
+                    end = time.time()
+                    sys.stdout.write(f" Done in {end - start:.2f} seconds.\n")
+                    sys.stdout.flush()
+
+                total_pages = (
+                    (response or {})
+                    .get("searchFilter", {})
+                    .get("totalPages", Listings.MAX_PAGES)
+                )
+                sys.stdout.write(f"Total pages: {total_pages}, \n")
+                sys.stdout.flush()
+
+                if page >= min(total_pages, Listings.MAX_PAGES):
+                    break
+                page += 1
+        except Exception as e:
+            sys.stdout.write(f"Error occurred while fetching listings: {e}\n")
+            sys.stdout.flush()
+
+        return accumulated_listings
 
     def _get_page(self, page, page_size):
         params = {
@@ -103,37 +138,8 @@ class Listings:
             for item in response["data"]:
                 if item["countContacts"] > 0 and item["status"] == "active":
                     valid_listings.append(item["id"])
-                    
+
         return valid_listings
-
-    def _get_listings_recursively(self, page, page_size, accumulated_listings):
-        sys.stdout.write(f"Fetching page {page}...\n")
-        sys.stdout.flush()
-
-        response = self._get_page(page, page_size)
-
-        for listing_id in self._get_valid_listings(response):
-            sys.stdout.write(f"Fetching details for listing {listing_id}...\n")
-            sys.stdout.flush()
-            start = time.time()
-            time.sleep(random.uniform(0.1, 1))
-            # make this api calls persist every 20 pages or so that way they're not completly lost if some error happens
-            accumulated_listings.append(
-                self._get_listing_details(listing_id)
-            )
-            end = time.time()
-            sys.stdout.write(f" Done in {end - start:.2f} seconds.\n")
-            sys.stdout.flush()
-
-        total_pages = (response or {}).get("searchFilter", {}).get("totalPages", Listings.MAX_PAGES)
-
-        sys.stdout.write(f"Total pages: {total_pages}, \n")
-        sys.stdout.flush()
-        if page < min(total_pages, Listings.MAX_PAGES):
-            time.sleep(random.uniform(0.1, 1))
-            return self._get_listings_recursively(page + 1, page_size, accumulated_listings)
-        else:
-            return accumulated_listings
 
     def _get_listing_details(self, listing_id):
         url = f"{os.getenv('LISTING_DETAILS_URL')}/{listing_id}"
