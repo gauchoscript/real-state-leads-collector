@@ -2,6 +2,8 @@ import pytest
 import pytz
 import json
 from datetime import datetime, timedelta
+
+from requests import HTTPError
 from src.services.listings import Listings
 from src.services.persistor import Persistor
 
@@ -19,6 +21,10 @@ class MockGetListingResponse:
         self._json_data = {"data": response["data"], "searchFilter": {"totalPages": 3}}
         self.content = json.dumps(self._json_data).encode("utf-8")
         self.text = json.dumps(self._json_data)
+
+    def raise_for_status(self):
+        if self.status_code >= 400:
+            raise HTTPError(f"HTTP Error: {self.status_code}", response=self)
 
     def json(self):
         return self._json_data
@@ -73,7 +79,7 @@ class MockGetListingDetailsResponse:
             },
         },
         {
-            "id": 4,
+            "id": 6,
             "mlsid": "7654321-098",
             "address": {"city": "City B"},
             "question": {
@@ -136,12 +142,20 @@ def mock_envs_and_requests(monkeypatch, mock_login):
                 {"id": 2, "countContacts": 0, "status": "active"},
             ],
         },
-        {"status_code": 500, "data": []},
+        {"status_code": 401, "data": []},
         {
             "status_code": 200,
             "data": [
                 {"id": 3, "countContacts": 3, "status": "inactive"},
-                {"id": 4, "countContacts": 2, "status": "active"},
+                {"id": 4, "countContacts": 0, "status": "active"},
+            ],
+        },
+        {"status_code": 500, "data": []},
+        {
+            "status_code": 200,
+            "data": [
+                {"id": 5, "countContacts": 3, "status": "inactive"},
+                {"id": 6, "countContacts": 2, "status": "active"},
             ],
         },
     ]
@@ -166,8 +180,9 @@ def test_get_contacted_active_sale_listings(mock_envs_and_requests):
     recent_contacted_listings = sut.get_listings()
 
     assert len(recent_contacted_listings) == 2
+    print(recent_contacted_listings)
     assert recent_contacted_listings[0]["id"] == 1
-    assert recent_contacted_listings[1]["id"] == 4
+    assert recent_contacted_listings[1]["id"] == 6
 
 
 def test_get_dedupicated_leads_from_recent_contacted_listings(mock_envs_and_requests):
