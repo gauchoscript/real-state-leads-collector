@@ -1,4 +1,3 @@
-import json
 import requests
 import time
 import sys
@@ -23,9 +22,6 @@ class Listings:
 
         try:
             while True:
-                sys.stdout.write(f"Fetching page {page}...\n")
-                sys.stdout.flush()
-
                 response = self._get_page(page, page_size)
 
                 for listing_id in self._get_valid_listings(response):
@@ -50,13 +46,31 @@ class Listings:
                 if page >= min(total_pages, Listings.MAX_PAGES):
                     break
                 page += 1
+
         except Exception as e:
             sys.stdout.write(f"Error occurred while fetching listings: {e}\n")
             sys.stdout.flush()
 
         return accumulated_listings
 
+    def _check_integrity(self, response):
+        if not response.content.strip():
+            sys.stdout.write("Empty response body\n")
+            return False
+
+        headers_lower = {k.lower(): v for k, v in response.headers.items()}
+        content_type = headers_lower.get("content-type", "")
+        if "application/json" not in content_type.lower():
+            sys.stdout.write(f"Non-JSON response. Content-Type: {content_type}\n")
+            sys.stdout.write(f"Response: {response.text[:200]}\n")
+            return False
+        
+        return True
+
     def _get_page(self, page, page_size):
+        sys.stdout.write(f"Sending request for page: {page}...\n")
+        sys.stdout.flush()
+
         params = {
             "type": "sale",
             "associateStatus": "active",
@@ -76,8 +90,16 @@ class Listings:
             end = time.time()
             sys.stdout.write(f" Done in {end - start:.2f} seconds.\n")
 
-            # Check HTTP status
-            if response.status_code == 401:
+            response.raise_for_status()
+
+            if not self._check_integrity(response):
+                return {}
+            
+            response_data = response.json()
+            return response_data
+        
+        except requests.exceptions.HTTPError as http_err:
+            if http_err.response.status_code == 401:
                 sys.stdout.write(
                     "Unauthorized. Token may have expired. Re-authenticating...\n"
                 )
@@ -88,45 +110,11 @@ class Listings:
 
                 return self._get_page(page, page_size)
 
-            if response.status_code != 200:
-                sys.stdout.write(
-                    f"HTTP Error {response.status_code}: {response.text[:200]}\n"
-                )
-                return {}
-
-            # Check if response has content
-            if not response.content.strip():
-                sys.stdout.write("Empty response body\n")
-                return {}
-
-            # Check content type
-            # Normalize all header keys to lowercase for robust Content-Type detection
-            headers_lower = {k.lower(): v for k, v in response.headers.items()}
-            content_type = headers_lower.get("content-type", "")
-            if "application/json" not in content_type.lower():
-                sys.stdout.write(f"Non-JSON response. Content-Type: {content_type}\n")
-                sys.stdout.write(f"Response: {response.text[:200]}\n")
-                return {}
-
-            # Safe JSON parsing
-            try:
-                response_data = response.json()
-                return response_data
-            except json.JSONDecodeError as e:
-                sys.stdout.write(f"JSON decode error: {e}\n")
-                sys.stdout.write(f"Response content: {response.text[:200]}\n")
-                return {}
-
-        except requests.exceptions.Timeout:
-            end = time.time()
-            sys.stdout.write(f"Request timed out after {end - start:.2f} seconds\n")
+            sys.stdout.write(
+                f"HTTP Error {http_err.response.status_code}: {http_err.response.text[:200]}\n"
+            )
             return {}
-
-        except requests.exceptions.ConnectionError as e:
-            end = time.time()
-            sys.stdout.write(f"Connection error: {e}\n")
-            return {}
-
+        
         except Exception as e:
             end = time.time()
             sys.stdout.write(f"Unexpected error: {e}\n")
