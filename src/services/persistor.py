@@ -1,9 +1,10 @@
 import glob
 import os
 import time
-import pandas
 from dataclasses import asdict
 from pathlib import Path
+
+import pandas
 
 SERVICES_DIR = Path(__file__).resolve().parent
 SRC_DIR = SERVICES_DIR.parent

@@ -1,6 +1,6 @@
+from src.mailer import EmailSender
 from src.models import EmailConfig
 from src.services.persistor import Persistor
-from src.mailer import EmailSender
 
 
 class FakeSMTP:

@@ -1,9 +1,9 @@
 import json
 import os
 import sys
-import requests
 from pathlib import Path
 
+import requests
 
 TOKEN_FILE = Path(__file__).resolve().parent / "auth.json"
 

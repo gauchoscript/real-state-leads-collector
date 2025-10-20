@@ -2,8 +2,9 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-import time
 import sys
+import time
+
 from src.services.listings import Listings
 from src.services.persistor import Persistor
 

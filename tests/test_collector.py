@@ -1,9 +1,10 @@
-import pytest
-import pytz
 import json
 from datetime import datetime, timedelta
 
+import pytest
+import pytz
 from requests import HTTPError
+
 from src.services.listings import Listings
 from src.services.persistor import Persistor
 

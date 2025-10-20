@@ -1,10 +1,12 @@
-import requests
-import time
-import sys
-import random
-import pytz
 import os
+import random
+import sys
+import time
 from datetime import datetime, timedelta
+
+import pytz
+import requests
+
 from src.models import Lead
 from src.services.auth import Auth
 
@@ -64,7 +66,7 @@ class Listings:
             sys.stdout.write(f"Non-JSON response. Content-Type: {content_type}\n")
             sys.stdout.write(f"Response: {response.text[:200]}\n")
             return False
-        
+
         return True
 
     def _get_page(self, page, page_size):
@@ -94,10 +96,10 @@ class Listings:
 
             if not self._check_integrity(response):
                 return {}
-            
+
             response_data = response.json()
             return response_data
-        
+
         except requests.exceptions.HTTPError as http_err:
             if http_err.response.status_code == 401:
                 sys.stdout.write(
@@ -114,7 +116,7 @@ class Listings:
                 f"HTTP Error {http_err.response.status_code}: {http_err.response.text[:200]}\n"
             )
             return {}
-        
+
         except Exception as e:
             end = time.time()
             sys.stdout.write(f"Unexpected error: {e}\n")
