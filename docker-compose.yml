@@ -6,6 +6,8 @@ services:
       - ./output:/output
     command: >
       sh -c "python -m src.collector"
+    mem_limit: 400m
+    cpus: 1.5
   
   mailer:
     build: .
@@ -14,3 +16,5 @@ services:
       - ./output:/output
     command: >
       sh -c "python -m src.mailer"
+    mem_limit: 400m
+    cpus: 1.5
