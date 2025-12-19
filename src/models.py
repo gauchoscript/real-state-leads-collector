@@ -1,6 +1,5 @@
-import datetime
-import os
 from dataclasses import dataclass
+from datetime import datetime
 
 
 @dataclass
@@ -18,7 +17,7 @@ class Lead:
 
 @dataclass
 class EmailConfig:
+    sender_email: str
+    sender_password: str
     smtp_server: str = "smtp.gmail.com"
     smtp_port: int = 587
-    sender_email: str = os.getenv("SENDER_EMAIL")
-    sender_password: str = os.getenv("SENDER_PASSWORD")

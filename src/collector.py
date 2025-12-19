@@ -1,16 +1,17 @@
+import sys
+import time
+
 from dotenv import load_dotenv
 
 load_dotenv()
 
-import sys
-import time
-
+from src.services.auth import Auth
 from src.services.listings import Listings
 from src.services.persistor import Persistor
 
 
 def main():
-    real_state_service = Listings()
+    real_state_service = Listings(Auth())
 
     total_start = time.time()
     sys.stdout.write("Starting to fetch listings...\n")

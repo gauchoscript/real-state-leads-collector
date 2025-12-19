@@ -41,7 +41,7 @@ def test_email_sents_successfully_when_leads_file_exists(monkeypatch, tmp_path):
         sender_email=test_sender_email, sender_password="test_password"
     )
 
-    sut = EmailSender(config)
+    sut = EmailSender(config, tmp_persistor)
 
     # Act
     sent = sut.send(test_recipient_email)

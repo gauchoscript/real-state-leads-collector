@@ -5,6 +5,9 @@ from dataclasses import asdict
 from pathlib import Path
 
 import pandas
+from pandas import DataFrame
+
+from src.models import Lead
 
 SERVICES_DIR = Path(__file__).resolve().parent
 SRC_DIR = SERVICES_DIR.parent
@@ -12,7 +15,7 @@ BASE_DIR = SRC_DIR.parent
 
 
 class Persistor:
-    def __init__(self, folder_path=BASE_DIR / "output"):
+    def __init__(self, folder_path: Path = BASE_DIR / "output"):
         self._folder_path = folder_path
         self._folder_path.mkdir(exist_ok=True)
 
@@ -20,12 +23,12 @@ class Persistor:
         timestamp = time.strftime("%Y%m%d_%H%M%S")
         return self._folder_path / f"relevant_listings_{timestamp}.xlsx"
 
-    def save(self, leads):
+    def save(self, leads: list[Lead]):
         filename = self._get_filename()
 
         data = [asdict(lead) for lead in leads]
 
-        dataframe = pandas.DataFrame(data)
+        dataframe: DataFrame = pandas.DataFrame(data)
         dataframe.columns = [
             "MLS ID",
             "Portal",
@@ -38,7 +41,8 @@ class Persistor:
             "Mensaje",
         ]
 
-        dataframe.to_excel(filename, index=False)
+        dataframe.to_excel(filename, index=False)  # type: ignore
+
         return filename
 
     def get_latest_leads_file(self):

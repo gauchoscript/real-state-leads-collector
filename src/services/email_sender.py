@@ -13,13 +13,13 @@ from src.services.persistor import Persistor
 class EmailSender:
     def __init__(
         self,
-        config=EmailConfig,
-        persistor=None,
+        config: EmailConfig,
+        persistor: Persistor,
     ):
         self._config = config
-        self._persistor = persistor or Persistor()
+        self._persistor = persistor
 
-    def _attach_leads_file(self, message):
+    def _attach_leads_file(self, message: MIMEMultipart):
         latest_leads_file = self._persistor.get_latest_leads_file()
         if not latest_leads_file:
             sys.exit("No leads file found to attach.")
@@ -37,7 +37,7 @@ class EmailSender:
 
         return message
 
-    def _create_message(self, recipient_email):
+    def _create_message(self, recipient_email: str):
         message = MIMEMultipart()
         message["From"] = self._config.sender_email
         message["To"] = recipient_email
@@ -50,7 +50,12 @@ class EmailSender:
 
         return message.as_string()
 
-    def send(self, recipient_email=os.getenv("RECIPIENT_EMAIL")):
+    def send(self, recipient_email: str | None = os.getenv("RECIPIENT_EMAIL")):
+        if not recipient_email:
+            raise ValueError(
+                "Recipient email must be provided either as an argument or environment variable."
+            )
+
         message = self._create_message(recipient_email)
 
         try:

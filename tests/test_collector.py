@@ -5,6 +5,7 @@ import pytest
 import pytz
 from requests import HTTPError
 
+from src.services.auth import Auth
 from src.services.listings import Listings
 from src.services.persistor import Persistor
 
@@ -166,7 +167,7 @@ def mock_envs_and_requests(monkeypatch, mock_login):
             return MockGetListingResponse(
                 responses.pop(0) if responses else {"status_code": 200, "data": []}
             )
-
+        
         listing_id = int(url.split("/")[-1])
         return MockGetListingDetailsResponse(listing_id)
 
@@ -176,18 +177,17 @@ def mock_envs_and_requests(monkeypatch, mock_login):
 
 
 def test_get_contacted_active_sale_listings(mock_envs_and_requests):
-    sut = Listings()
+    sut = Listings(Auth())
 
     recent_contacted_listings = sut.get_listings()
 
     assert len(recent_contacted_listings) == 2
-    print(recent_contacted_listings)
     assert recent_contacted_listings[0]["id"] == 1
     assert recent_contacted_listings[1]["id"] == 6
 
 
 def test_get_dedupicated_leads_from_recent_contacted_listings(mock_envs_and_requests):
-    sut = Listings()
+    sut = Listings(Auth())
 
     leads = sut.get_leads()
 
@@ -198,7 +198,7 @@ def test_get_dedupicated_leads_from_recent_contacted_listings(mock_envs_and_requ
 
 
 def test_leads_saved_correctly_in_xlsx_file(mock_envs_and_requests, tmp_path):
-    real_state_service = Listings()
+    real_state_service = Listings(Auth())
     leads = real_state_service.get_leads()
     sut = Persistor(tmp_path)
 
