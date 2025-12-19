@@ -5,3 +5,4 @@ output/
 .vscode/
 .pytest_cache/
 venv/
+src/services/auth.json
