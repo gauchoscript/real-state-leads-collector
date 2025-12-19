@@ -4,3 +4,4 @@ output/
 .devcontainer
 .vscode/
 .pytest_cache/
+venv/
