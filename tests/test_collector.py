@@ -39,6 +39,10 @@ class MockGetListingDetailsResponse:
         {
             "id": 1,
             "mlsid": "1234567-890",
+            "type": "sale",
+            "price": {
+                "value": 100000
+            },
             "address": {"neighborhood": "Neighborhood A"},
             "question": {
                 "question": [
@@ -82,6 +86,10 @@ class MockGetListingDetailsResponse:
         },
         {
             "id": 6,
+            "type": "rent",
+            "price": {
+                "value": 600
+            },
             "mlsid": "7654321-098",
             "address": {"city": "City B"},
             "question": {
