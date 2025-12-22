@@ -85,7 +85,6 @@ class Listings:
         sys.stdout.flush()
 
         params: dict[str, Any] = {
-            "type": "sale",
             "associateStatus": "active",
             "combineStatus": "Activas",
             "orderby": "-updated_on",
@@ -173,6 +172,8 @@ class Listings:
         three_days_ago = now - timedelta(days=3)
 
         for listing in recent_contacted_listings:
+            operation_type = "Venta" if listing["type"] == "sale" else "Alquiler"
+            
             zone = ""
             for key in ["neighborhood", "city", "subregion", "region"]:
                 zone = listing["address"].get(key)
@@ -195,6 +196,8 @@ class Listings:
                             listing["mlsid"],
                             question["portal"],
                             question["received"],
+                            operation_type,
+                            listing["price"]["value"],
                             zone,
                             question["from"]["first_name"],
                             question["from"]["last_name"],

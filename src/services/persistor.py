@@ -33,6 +33,8 @@ class Persistor:
             "MLS ID",
             "Portal",
             "Recibido",
+            "Operacion",
+            "Precio",
             "Zona",
             "Nombre",
             "Apellido",

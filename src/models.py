@@ -7,6 +7,8 @@ class Lead:
     id: int
     portal: str
     received: datetime
+    operation: str
+    price: int
     zone: str
     first_name: str
     last_name: str
